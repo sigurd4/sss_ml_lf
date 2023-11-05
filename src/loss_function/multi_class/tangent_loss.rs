@@ -5,26 +5,27 @@ use num::Float;
 use super::*;
 
 #[derive(Clone, Copy, Debug)]
-pub struct MultiClassSvmLoss;
+pub struct TangentLoss;
 
-impl<F, const Y: usize> LossFunction<F, Y, Y, Y> for MultiClassSvmLoss
+impl<F, const Y: usize> LossFunction<F, Y, Y, Y> for TangentLoss
 where
     F: Float + AddAssign + Default,
     [(); Y - Y]:
 {
     fn lf_loss(&self, y_true: [F; Y], y_est: [F; Y]) -> [F; Y]
     {
-        let zero = F::zero();
         let one = F::one();
 
-        y_true.comap(y_est, |y_true, y_est| (one - y_true*y_est).max(zero))
+        y_true.comap(y_est, |y_true, y_est| {
+            let sqrt = (y_true*y_est).atan()*f!(2.0) - one;
+            sqrt*sqrt
+        })
     }
     fn lf_loss_grad(&self, y_true: [F; Y], y_est: [F; Y]) -> [[F; Y]; Y]
     {
-        let zero = F::zero();
         let one = F::one();
 
-        y_true.comap(y_est, |y_true, y_est| if y_true*y_est <= one {-y_true} else {zero})
+        y_true.comap(y_est, |y_true, y_est| y_true*((y_true*y_est).atan()*f!(8.0) - f!(4.0))/(one + y_true*y_true*y_est*y_est))
             .diagonal()
     }
 }
@@ -33,7 +34,7 @@ where
 mod test
 {
     use crate::tests as t;
-    use super::MultiClassSvmLoss as LF;
+    use super::TangentLoss as LF;
 
     #[test]
     fn test()

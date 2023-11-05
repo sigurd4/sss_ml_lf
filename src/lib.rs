@@ -57,7 +57,7 @@ mod tests
     {
         let y_est = y_est_range.linspace_array();
         
-        let lf_name = format!("{:?}", lf);
+        let lf_name = core::any::type_name::<T>().split_terminator("::").last().unwrap();
 
         let mut first = true;
         let file_name: String = lf_name.chars()

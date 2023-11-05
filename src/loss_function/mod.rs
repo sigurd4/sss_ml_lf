@@ -10,8 +10,10 @@ moddef::moddef!(
         mean_absolute_error,
         mean_bias_error,
 
-        binary_cross_entropy_loss,
-        multi_class_svm_loss
+        binary_cross_entropy_loss
+    },
+    pub mod {
+        multi_class
     }
 );
 
